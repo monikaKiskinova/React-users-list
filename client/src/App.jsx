@@ -9,7 +9,6 @@ import UserList from './components/UserList';
 function App() {
   return (
     <>
-      <body>
         <Header />
 
         {/* <!-- Main component  --> */}
@@ -197,7 +196,6 @@ function App() {
         </main>
 
         <Footer />
-      </body>
     </>
   )
 }
