@@ -5,9 +5,11 @@ import userService from "../services/userService";
 import Search from "./Search";
 import Pagination from "./Pagination";
 import UserListItem from "./UserListItem";
+import UserCreate from "./UserCreate";
 
 export default function UserList() {
     const [users, setUsers] = useState([]);
+    const [showCreate, setShowCreate] = useState(false);
 
     useEffect(() => {
         userService.getAll()
@@ -17,9 +19,38 @@ export default function UserList() {
             .catch((err) => console.log(err));
     }, []);
 
+    const addUserClickHandler = () => {
+        setShowCreate(true);
+    }
+
+    const closeCreateUserClickHandler = () => {
+        setShowCreate(false);
+    }
+
+    const saveCreateUserClickHandler = async (e) => {
+        e.preventDefault();
+
+        // const formData = new FormData(e.target); 
+        const formData = new FormData(e.target.form);
+        const userData = Object.fromEntries(formData);
+
+        const newUser = await userService.create(userData);
+
+        setUsers(state => [...state, newUser]);
+
+        setShowCreate(false);
+    }
+
+
     return (
         <>
             <Search />
+
+            {/* <!-- Create Form component  --> */}
+            {showCreate && <UserCreate onClose={closeCreateUserClickHandler} onSave={saveCreateUserClickHandler} />}
+
+            {/* <!-- Delete user component  --> */}
+            {/* {showDelete && <UserDelete />} */}
 
             {/* <!-- Table component --> */}
             <div className="table-wrapper">
@@ -153,7 +184,7 @@ export default function UserList() {
             </div>
 
             {/* <!-- New user button  --> */}
-            <button className="btn-add btn">Add new user</button>
+            <button className="btn-add btn" onClick={addUserClickHandler}>Add new user</button>
 
             <Pagination />
         </>
