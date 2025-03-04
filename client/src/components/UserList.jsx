@@ -6,10 +6,13 @@ import Search from "./Search";
 import Pagination from "./Pagination";
 import UserListItem from "./UserListItem";
 import UserCreate from "./UserCreate";
+import UserDelete from "./UserDelete";
 
 export default function UserList() {
     const [users, setUsers] = useState([]);
     const [showCreate, setShowCreate] = useState(false);
+    const [showDelete, setShowDelete] = useState(false);
+    const [userIdDelete, setUserIdDelete] = useState(null);
 
     useEffect(() => {
         userService.getAll()
@@ -27,6 +30,15 @@ export default function UserList() {
         setShowCreate(false);
     }
 
+    const deleteClickHandler = (userId) => {
+        setShowDelete(true); 
+        setUserIdDelete(userId); 
+    }
+
+    const closeDeleteUserClickHandler = () => {
+        setShowDelete(false);
+    }
+
     const saveCreateUserClickHandler = async (e) => {
         e.preventDefault();
 
@@ -41,6 +53,15 @@ export default function UserList() {
         setShowCreate(false);
     }
 
+    const deleteUserHandler = async () => {
+        await userService.delete(userIdDelete);
+
+        setUsers(state => state.filter(user => user._id !== userIdDelete));
+
+        setUserIdDelete(null);
+        closeDeleteUserClickHandler();
+    }
+
 
     return (
         <>
@@ -50,7 +71,7 @@ export default function UserList() {
             {showCreate && <UserCreate onClose={closeCreateUserClickHandler} onSave={saveCreateUserClickHandler} />}
 
             {/* <!-- Delete user component  --> */}
-            {/* {showDelete && <UserDelete />} */}
+            {showDelete && <UserDelete onDeleteUser={deleteUserHandler} onClose={closeDeleteUserClickHandler}/>}
 
             {/* <!-- Table component --> */}
             <div className="table-wrapper">
@@ -178,7 +199,7 @@ export default function UserList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map(user => <UserListItem key={user._id} {...user} />)}
+                        {users.map(user => <UserListItem key={user._id} {...user} onDelete={deleteClickHandler} />)}
                     </tbody>
                 </table>
             </div>
